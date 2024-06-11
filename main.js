@@ -20,4 +20,6 @@ app.use("/api/v1/users", usersRouter);
 app.use("*", (req, res, next) => {
   return res.status(404).json("Rute not foud 🤬🤬😭🤬🤬")
 });
-app.listen("https://proyecto-10-back.vercel.app/");
+app.listen(PORT, () => {
+  console.log(`Servidor activo en http://localhost:${PORT} 👌🏼🆗😃🆗👌🏼`);
+});
