@@ -11,7 +11,6 @@ const getUsers = async (req, res, next) => {
   }
 };
 
-
 const getUsersByID = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -58,26 +57,27 @@ const login = async (req, res, next) => {
   }
 }
 const updateUser = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    if (req.user.rol === "admin" || req.user._id.toString() === id) {
-      const updateUserData = req.body;
+  const { id } = req.params;
+  const { userName, email, rol, favoritos } = req.body;
+  const { rol: userRole, _id } = req.user;
 
-      // Solo actualiza los campos que están presentes en el request body
-      const updateObject = {};
-      if (updateUserData.userName) updateObject.userName = updateUserData.userName;
-      if (updateUserData.email) updateObject.email = updateUserData.email;
-      if (updateUserData.rol) updateObject.rol = updateUserData.rol;
-      if (updateUserData.favoritos) updateObject.favoritos = updateUserData.favoritos;
+  if (userRole === "admin" || _id.toString() === id) {
+    const updateObject = { userName, email, rol, favoritos };
 
+    // Elimino propiedades undefined del objeto updateObject
+    Object.keys(updateObject).forEach(key => updateObject[key] === undefined && delete updateObject[key]);
+
+    try {
       const userUpdated = await User.findByIdAndUpdate(id, updateObject, { new: true });
+      if (!userUpdated) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
+      }
       return res.status(200).json(userUpdated);
+    } catch (error) {
+      return res.status(500).json({ error: "Error al actualizar el usuario", details: error.message });
     }
-
-    return res.status(401).json({ error: "No se puede modificar este usuario ya que no eres tu." });
-  } catch (error) {
-    return res.status(500).json({ error: "error al actualizar usuario" });
   }
+  return res.status(401).json({ error: "No tienes permiso para modificar este usuario" });
 }
 
 const deleteUser = async (req, res, next) => {
