@@ -30,6 +30,7 @@ const register = async (req, res, next) => {
     }
     const newUser = new User({
       userName: req.body.userName,
+      email: req.body.email,
       password: req.body.password,
       rol: "user"
     });
